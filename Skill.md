@@ -1,37 +1,38 @@
-# Java Debugging Skill for AI Agents
+# Java Debugging Skill for AI Agents (JDB-MCP)
 
 ## Role
 You are an expert Java Debugger. You use the JDB-MCP server to obtain deep runtime information from Java applications, enabling you to inspect state, trace execution flow, and modify variables in real-time.
 
 ## Core Workflows
 
-### 1. Session Management
-- **Start**: Use `debug_launch` or `debug_attach`. You can optionally provide a `sessionId` (e.g., "my-feature-test"). If not provided, the server generates one.
-- **Track**: Always remember the `sessionId` returned by the launch/attach tool. **Every subsequent debugging tool call REQUIRES this sessionId.**
-- **Context**: You can manage multiple debug sessions simultaneously. Use `debug_list_sessions` if you lose track of them.
+### 1. Connecting to target VM
+- **Attach Mode (Current Focus)**: Use `debug_attach` to connect to a running Java process that has JDWP enabled.
+- **Prerequisite**: Ensure the target application is started with: `-agentlib:jdwp=transport=dt_socket,server=y,suspend=n,address=*:5005`.
 
-### 2. Project Initialization
-- For **simple files**: Use `debug_launch` with the correct `mainClass` and `classPath`.
-- For **SpringBoot/Maven/Gradle**: Ask the user to start the app with JDWP parameters, then use `debug_attach`.
+### 2. Strategic Debugging
+- **Locate**: Use `debug_set_breakpoint` with the fully qualified `className` and `line` number.
+- **Inspect**: When a breakpoint is hit:
+    1. Use `debug_list_threads` to identify suspended threads.
+    2. Use `debug_list_vars` to get a structured overview of local variables in the current stack frame.
+    3. Use `debug_get_var` for deep, recursive inspection of complex objects (adjust `maxDepth` as needed).
+- **Trace**: Use `debug_get_stack_trace` to understand the execution path leading to the current state.
+- **Modify**: Use `debug_set_var` to change variable values at runtime to test fixes or explore different execution branches.
 
-### 3. Strategic Debugging
-- **Locate**: Use `debug_set_breakpoint` with the mandatory `sessionId`.
-- **Inspect**: When a breakpoint is hit, use `debug_list_vars` to get a quick overview of local variables (non-recursive by default). If you need to inspect a specific object in detail, use `debug_get_var` with the variable name.
-- **Trace**: Use `debug_get_stack_trace` with the `sessionId`.
-- **Verify**: Use `debug_set_var` to test hypotheses. **Important**: After setting a variable, you must call `debug_continue` with the `sessionId` to resume execution.
+### 3. Execution Control
+- **Flow**: Use `debug_step_over`, `debug_step_into`, and `debug_step_out` for granular control.
+- **Resume**: Use `debug_continue` to run until the next breakpoint, or `debug_resume` for general resumption.
 
-### 4. Notifications Handling
-- When you receive a `notifications/message` indicating a `Debugger Event`, check the `sessionId` in the description.
-- Immediately:
-    1. Acknowledge the current line and the session it belongs to.
-    2. Call `debug_list_vars` using that `sessionId`.
-    3. Analyze the data and decide whether to `step_over` or `debug_continue`.
+### 4. Real-time Awareness
+- **Notifications**: Pay attention to real-time events. When a breakpoint is hit, the server sends a notification.
+- **Action**: Immediately fetch the current state (threads/vars) to provide the user with context-aware analysis.
 
 ## Best Practices
-- **Explicit ID**: Always specify the `sessionId` to avoid errors. The server does not maintain a "default" active session.
-- **Cleanup**: Use `debug_kill_session` when you are finished with a debugging task to release resources and stop the target process.
-- **Depth Control**: `debug_list_vars` is non-recursive by default (`maxDepth=0`) to save context. Use `debug_get_var` with an appropriate `maxDepth` (e.g., 2 or 3) for targeted inspection of complex objects.
+- **Single Session Focus**: Currently, the server is optimized for a single active debugging session. 
+- **Variable Inspection**: Start with `debug_list_vars` (shallow) and then use `debug_get_var` for specific fields to keep the context window clean.
+- **Class Filtering**: Use `debug_list_classes` with a `filter` (e.g., `com.myapp.*`) to quickly find classes for setting breakpoints.
+- **Cleanup**: Use `debug_detach` when finished to cleanly disconnect from the target VM without terminating it.
 
-## Safety
-- Be aware that `debug_launch` starts a new process.
-- `debug_set_var` can lead to `IllegalStateException` or crashes if types don't match or business logic invariants are broken.
+## Safety & Constraints
+- **Attach Only**: Currently, `debug_launch` is a planned feature. Always use `debug_attach` for now.
+- **No Session ID**: Parameters like `sessionId` are not required in the current version to simplify the interaction.
+- **Data Limits**: Avoid very high `maxDepth` in `debug_get_var` on extremely large object trees to prevent memory/token overhead.
