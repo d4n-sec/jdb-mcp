@@ -47,7 +47,7 @@ mvn clean compile assembly:single
       "command": "java",
       "args": [
         "-jar",
-        "path/to/jdb-mcp/target/jdb-mcp-1.0-SNAPSHOT-jar-with-dependencies.jar"
+        "path/to/jdb-mcp.jar"
       ]
     }
   }
