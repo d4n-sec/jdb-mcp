@@ -14,8 +14,8 @@ JDB-MCP is a Model Context Protocol (MCP) server based on the Java Debug Interfa
     - State inspection (Stack trace inspection, deep structured variable traversal)
     - Thread & Class inspection (`debug_list_threads`, `debug_list_classes`)
     - Dynamic modification (Change variable values at runtime)
+- **Simplified Design**: Currently focused on single-session debugging, eliminating the need for complex `sessionId` management.
 - **Manual Debug Mode Required**: The target Java application must be started manually with JDWP options enabled.
-- **Multi-session Management**: Supports debugging multiple sessions simultaneously. Every tool call requires an explicit `sessionId`.
 - **Real-time Awareness**: Leveraging MCP Notifications, AI agents are immediately notified when a breakpoint is hit.
 
 ## Installation & Build
@@ -54,11 +54,6 @@ Add the following configuration to your MCP settings:
 }
 ```
 
-### Multi-session & Explicit ID
-JDB-MCP enforces **Explicit ID Calling**. 
-1. `debug_attach` returns a `sessionId`.
-2. All subsequent calls (e.g., `debug_resume`, `debug_list_vars`) **must** include this `sessionId`.
-
 ### How to Debug (Attach Mode)
 **Important**: You must manually start your target Java application with JDWP enabled.
 
@@ -66,14 +61,12 @@ JDB-MCP enforces **Explicit ID Calling**.
    ```bash
    java -agentlib:jdwp=transport=dt_socket,server=y,suspend=n,address=*:5005 -jar your-app.jar
    ```
-2. In the AI chat, request: `Attach to localhost:5005 with sessionId 'my-app' and debug...`
+2. In the AI chat, request: `Attach to localhost:5005 and debug...`
 
 ## Tool List
-- `debug_attach`: Attach to an existing debug port via Socket. Returns a `sessionId`.
+- `debug_attach`: Attach to an existing debug port via Socket.
 - `debug_list_threads`: List all threads and their status.
 - `debug_list_classes`: List loaded classes with optional filtering.
-- `debug_list_sessions`: List all active debug sessions.
-- `debug_kill_session`: Terminate a session by ID.
 - `debug_list_vars`: List variables (supports `threadName` filter).
 - `debug_get_var`: Get detailed info for a specific variable.
 - `debug_set_var`: Modify runtime variables (supports `threadName` and `frameIndex`).

@@ -14,8 +14,8 @@ JDB-MCP 是一个基于 Java 调试接口 (JDI) 实现的 Model Context Protocol
     - 状态检查 (查看堆栈、结构化变量深度遍历)
     - 线程与类检查 (`debug_list_threads`, `debug_list_classes`)
     - 动态修改 (运行时修改变量值)
+- **极简设计**: 目前专注于单会话调试，无需管理复杂的 `sessionId`，开箱即用。
 - **需手动开启调试模式**: 目标 Java 程序必须由用户手动启动并开启 JDWP 调试选项。
-- **多会话管理**: 支持同时调试多个会话，所有工具调用均要求显式提供 `sessionId`。
 - **实时感知**: 通过 MCP Notifications 机制，AI 能在断点命中的瞬间感知程序状态。
 
 ## 安装与构建
@@ -54,11 +54,6 @@ mvn clean compile assembly:single
 }
 ```
 
-### 多会话与显式 ID 调用
-JDB-MCP 强制执行 **显式 ID 调用 (Explicit ID Calling)** 策略：
-1. `debug_attach` 会返回一个 `sessionId`。
-2. 所有后续操作（如 `debug_resume`, `debug_list_vars`）**必须**在参数中包含该 `sessionId`。
-
 ### 如何开始调试 (Attach 模式)
 **重要**: 您必须手动启动目标 Java 应用程序并开启 JDWP。
 
@@ -66,14 +61,12 @@ JDB-MCP 强制执行 **显式 ID 调用 (Explicit ID Calling)** 策略：
    ```bash
    java -agentlib:jdwp=transport=dt_socket,server=y,suspend=n,address=*:5005 -jar your-app.jar
    ```
-2. 在 AI 对话中要求：`使用 sessionId 'my-app' 附加到 localhost:5005 并开始调试...`
+2. 在 AI 对话中要求：`附加到 localhost:5005 并开始调试...`
 
 ## 工具列表 (Tools)
-- `debug_attach`: 通过 Socket 附加到现有的调试端口。返回 `sessionId`。
+- `debug_attach`: 通过 Socket 附加到现有的调试端口。
 - `debug_list_threads`: 列出所有线程及其状态。
 - `debug_list_classes`: 列出已加载的类，支持过滤。
-- `debug_list_sessions`: 列出当前所有活跃的调试会话。
-- `debug_kill_session`: 通过 ID 终止会话。
 - `debug_list_vars`: 获取变量信息（支持 `threadName` 过滤）。
 - `debug_get_var`: 获取特定变量的详细信息。
 - `debug_set_var`: 修改运行时变量（支持 `threadName` 和 `frameIndex`）。
