@@ -75,6 +75,7 @@ mvn clean compile assembly:single
 ## TODO List
 
 - [ ] **实现 `debug_launch` 功能**：提供“开箱即用”的体验，允许用户直接通过 MCP 启动并调试 Java 程序。
+- [ ] **实现 `debug_calc` 功能**：支持在调试上下文中执行任意 Java 表达式（Expression Evaluation）。
 - [ ] **多会话支持**：重构代码以支持一个 MCP 实例同时管理和调试多个目标程序。
 - [ ] **待补充**：根据社区反馈持续添加新功能。
 

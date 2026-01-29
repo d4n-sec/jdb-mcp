@@ -75,6 +75,7 @@ Add the following configuration to your MCP settings:
 ## TODO List
 
 - [ ] **Implement `debug_launch`**: Enable "out-of-the-box" experience by allowing users to launch and debug Java programs directly through the MCP.
+- [ ] **Implement `debug_calc`**: Support evaluating arbitrary Java expressions in the debug context (Expression Evaluation).
 - [ ] **Multi-session Support**: Refactor to allow one MCP instance to manage and debug multiple target programs simultaneously.
 - [ ] **To be added**: More features based on community feedback.
 
