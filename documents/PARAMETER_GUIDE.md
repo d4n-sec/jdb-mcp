@@ -19,7 +19,7 @@ Terminate the current debug session and detach. No parameters.
 ### 2. Execution Control
 
 #### `debug_resume` / `debug_continue`
-Resume the execution of the debugged VM. No parameters.
+Resume the execution of the debugged VM. No parameters. (Note: `debug_resume` and `debug_continue` are aliases for the same operation).
 
 #### `debug_step_over`
 Step over the current line of code. No parameters.
@@ -86,15 +86,15 @@ Set the value of a local variable.
 
 ---
 
-### 6. Miscellaneous
+### 6. Miscellaneous (Planned / Launch Mode Only)
 
 #### `debug_get_output`
-Get the latest standard output/error from the debugged process. No parameters.
+(Planned) Get the latest standard output/error from the debugged process.
+**Note**: This tool relies on the `debug_launch` feature (local process management) which is currently under development. It is NOT available in the current "Attach Mode".
 
 #### `debug_send_input`
-Send input string to the debugged process's stdin.
-- **input** (string, **required**): The string to send.
+(Planned) Send input string to the debugged process's stdin.
+**Note**: This tool relies on the `debug_launch` feature and is NOT available in "Attach Mode".
 
-## Demo
 
-![Demo Play](../documents/Demo_Play.gif)
+

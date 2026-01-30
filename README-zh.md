@@ -4,6 +4,10 @@
 
 JDB-MCP 是一个基于 Java 调试接口 (JDI) 实现的 Model Context Protocol (MCP) 服务器。它允许 AI 智能体（如 Claude, Cline, Trae）直接对 Java 应用程序进行深度的运行时调试。
 
+## 演示动画
+
+![演示动画](./documents/Demo_Play.gif)
+
 ## 核心能力
 
 - **多模式传输**: 支持 `stdio` (VSCode 标准集成) 和 `http` (远程/curl 调试) 传输模式。

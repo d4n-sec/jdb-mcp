@@ -4,6 +4,10 @@
 
 JDB-MCP is a Model Context Protocol (MCP) server based on the Java Debug Interface (JDI). It enables AI agents (such as Claude, Cline, Trae) to perform deep runtime debugging of Java applications.
 
+## Demo
+
+![Demo Play](./documents/Demo_Play.gif)
+
 ## Key Capabilities
 
 - **Multi-transport Support**: Supports both `stdio` (standard VSCode integration) and `http` (for remote/curl debugging).
