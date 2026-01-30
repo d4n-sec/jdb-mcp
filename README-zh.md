@@ -29,9 +29,21 @@ JDB-MCP 是一个基于 Java 调试接口 (JDI) 实现的 Model Context Protocol
 
 ### 构建 fatJAR (推荐)
 ```bash
-# 构建包含所有依赖的独立 JAR 包 (需要 pom.xml 中的 maven-assembly-plugin)
-mvn clean compile assembly:single
+# 构建所有模块并在 `release/` 目录下生成 JAR 包
+mvn clean package
+
+# 或者针对特定 JDK 版本构建：
+
+# 适用于 JDK 17+ (推荐)
+mvn clean package -pl jdb-mcp-jdk17 -am
+
+# 适用于 JDK 7 (遗留系统支持)
+mvn clean package -pl jdb-mcp-jdk7 -am
 ```
+
+构建完成后，可执行的 JAR 包位于 `release/` 目录：
+- `release/jdb-mcp.jar` (JDK 17+)
+- `release/jdb-mcp-jdk7.jar` (JDK 7)
 
 ## 配置使用
 

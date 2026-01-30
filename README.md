@@ -28,10 +28,23 @@ JDB-MCP is a Model Context Protocol (MCP) server based on the Java Debug Interfa
 - JDK 17+ (with JDI module)
 
 ### Build fatJAR
+
 ```bash
-# Build the standalone JAR (requires maven-assembly-plugin in pom.xml)
-mvn clean compile assembly:single
+# Build all modules and generate JARs in the `release/` directory
+mvn clean package
+
+# Or build for a specific JDK version:
+
+# For JDK 17+ (Recommended)
+mvn clean package -pl jdb-mcp-jdk17 -am
+
+# For JDK 7 (Legacy Support)
+mvn clean package -pl jdb-mcp-jdk7 -am
 ```
+
+The executable JARs will be located in the `release/` directory:
+- `release/jdb-mcp.jar` (JDK 17+)
+- `release/jdb-mcp-jdk7.jar` (JDK 7)
 
 ## Configuration & Usage
 
