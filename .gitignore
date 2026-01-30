@@ -29,6 +29,7 @@ buildNumber.properties
 bin/
 .me/Study_Demo/
 JDK_ENV_INFO
+release/
 
 # IDE - VSCode
 .vscode/

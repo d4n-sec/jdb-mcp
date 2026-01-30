@@ -22,13 +22,19 @@
 恢复被调试虚拟机的执行。无参数。
 
 #### `debug_step_over`
-单步跳过当前行。无参数。
+单步跳过当前行。
+- **threadName** (string, 可选): 要执行操作的线程名称。
+- **smartStep** (boolean, 可选): 如果为 `true`，在缺少 `threadName` 时启用自动线程选择（如选择最近暂停的线程）。默认为 `false`（否则必须提供 `threadName`）。
 
 #### `debug_step_into`
-进入当前方法调用。无参数。
+进入当前方法调用。
+- **threadName** (string, 可选): 要执行操作的线程名称。
+- **smartStep** (boolean, 可选): 如果为 `true`，在缺少 `threadName` 时启用自动线程选择（如选择最近暂停的线程）。默认为 `false`（否则必须提供 `threadName`）。
 
 #### `debug_step_out`
-跳出当前方法。无参数。
+跳出当前方法。
+- **threadName** (string, 可选): 要执行操作的线程名称。
+- **smartStep** (boolean, 可选): 如果为 `true`，在缺少 `threadName` 时启用自动线程选择（如选择最近暂停的线程）。默认为 `false`（否则必须提供 `threadName`）。
 
 ---
 
@@ -58,11 +64,22 @@
 
 #### `debug_list_classes`
 列出目标虚拟机中已加载的类。
-- **filter** (string): 可选过滤器（例如：`com.example.*` 或 `Controller`）。
+- **filter** (string): 可选过滤器。支持前缀（如 `com.example.*`）、后缀（如 `*.String`）或子串匹配。
+
+#### `debug_list_methods`
+列出特定类中的方法。
+- **className** (string, **必填**): 类的全限定名。
+
+#### `debug_source`
+获取特定类的源文件名和内容。
+- **className** (string, **必填**): 类的全限定名。
+- **sourceRoots** (string, 可选): 逗号分隔的源码根目录绝对路径列表。
 
 #### `debug_list_vars`
 列出当前栈帧中的本地变量。
-- **threadName** (string): 可选的线程名称过滤器。
+- **threadName** (string, **必填**): 线程名称过滤器（使用 'ALL' 查看所有线程）。
+- **frameIndex** (integer): 可选的栈帧索引（默认 0）。
+- **scope** (string): 可选变量作用域 ('LOCAL', 'THIS', 'ALL')。默认 'LOCAL'。
 - **maxDepth** (integer): 复杂对象的最大递归深度（默认 0）。
 
 #### `debug_get_var`

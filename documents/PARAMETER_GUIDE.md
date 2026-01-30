@@ -22,13 +22,19 @@ Terminate the current debug session and detach. No parameters.
 Resume the execution of the debugged VM. No parameters. (Note: `debug_resume` and `debug_continue` are aliases for the same operation).
 
 #### `debug_step_over`
-Step over the current line of code. No parameters.
+Step over the current line of code.
+- **threadName** (string, optional): The name of the thread to step.
+- **smartStep** (boolean, optional): If `true`, enables automatic thread selection (e.g. last suspended thread) when `threadName` is missing. Defaults to `false` (requires explicit `threadName` otherwise).
 
 #### `debug_step_into`
-Step into the current method call. No parameters.
+Step into the current method call.
+- **threadName** (string, optional): The name of the thread to step.
+- **smartStep** (boolean, optional): If `true`, enables automatic thread selection (e.g. last suspended thread) when `threadName` is missing. Defaults to `false` (requires explicit `threadName` otherwise).
 
 #### `debug_step_out`
-Step out of the current method. No parameters.
+Step out of the current method.
+- **threadName** (string, optional): The name of the thread to step.
+- **smartStep** (boolean, optional): If `true`, enables automatic thread selection (e.g. last suspended thread) when `threadName` is missing. Defaults to `false` (requires explicit `threadName` otherwise).
 
 ---
 
@@ -49,6 +55,21 @@ Set an access or modification watchpoint for a field.
 - **access** (boolean): Trigger on field access.
 - **modification** (boolean): Trigger on field modification.
 
+#### `debug_set_method_breakpoint`
+Set a breakpoint at the beginning of a method.
+- **className** (string, **required**): Fully qualified class name.
+- **methodName** (string, **required**): The name of the method.
+
+#### `debug_set_method_entry`
+Suspend execution when a method is entered.
+- **className** (string, **required**): Fully qualified class name.
+- **methodName** (string, optional): Filter by method name.
+
+#### `debug_set_method_exit`
+Suspend execution when a method exits.
+- **className** (string, **required**): Fully qualified class name.
+- **methodName** (string, optional): Filter by method name.
+
 ---
 
 ### 4. Inspection & State
@@ -58,11 +79,22 @@ List all threads and their current status (Running/Suspended). No parameters.
 
 #### `debug_list_classes`
 List loaded classes in the target VM.
-- **filter** (string): Optional filter (e.g., `com.example.*` or `Controller`).
+- **filter** (string): Optional filter. Supports prefix (e.g., `com.example.*`), suffix (e.g., `*.String`), or substring match.
+
+#### `debug_list_methods`
+List methods in a specific class.
+- **className** (string, **required**): Fully qualified class name.
+
+#### `debug_source`
+Get the source file name and content for a specific class.
+- **className** (string, **required**): Fully qualified class name.
+- **sourceRoots** (string, optional): Comma-separated list of absolute paths to source root directories.
 
 #### `debug_list_vars`
 List local variables in the current stack frame.
-- **threadName** (string): Optional thread name filter.
+- **threadName** (string, **required**): Filter variables by thread name (use 'ALL' for all threads).
+- **frameIndex** (integer): Optional stack frame index (default 0).
+- **scope** (string): Optional variable scope ('LOCAL', 'THIS', 'ALL'). Default 'LOCAL'.
 - **maxDepth** (integer): Maximum recursion depth for complex objects (default 0).
 
 #### `debug_get_var`

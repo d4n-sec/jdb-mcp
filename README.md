@@ -71,7 +71,12 @@ Add the following configuration to your MCP settings:
 - `debug_attach`: Attach to an existing debug port via Socket.
 - `debug_list_threads`: List all threads and their status.
 - `debug_list_classes`: List loaded classes with optional filtering.
-- `debug_list_vars`: List variables (supports `threadName` filter).
+- `debug_list_methods`: List methods in a specific class.
+- `debug_source`: Retrieve source code for a class (requires source roots).
+- `debug_set_method_breakpoint`: Set a breakpoint at method entry.
+- `debug_set_method_entry`: Monitor method entry events.
+- `debug_set_method_exit`: Monitor method exit events.
+- `debug_list_vars`: List variables (supports `threadName`, `frameIndex` and `scope` filter).
 - `debug_get_var`: Get detailed info for a specific variable.
 - `debug_set_var`: Modify runtime variables (supports `threadName` and `frameIndex`).
 - ...and more (see `tools/list`).
@@ -81,6 +86,9 @@ Add the following configuration to your MCP settings:
 - [ ] **Implement `debug_launch`**: Enable "out-of-the-box" experience by allowing users to launch and debug Java programs directly through the MCP.
 - [ ] **Implement `debug_calc`**: Support evaluating arbitrary Java expressions in the debug context (Expression Evaluation).
 - [ ] **Multi-session Support**: Refactor to allow one MCP instance to manage and debug multiple target programs simultaneously.
+- [ ] **Package Prefix Filtering**: Support filtering by package prefix (e.g., `com.example.*`) for method entry/exit and breakpoints.
+- [ ] **Batch Class Filtering**: Support passing multiple class names or wildcard patterns at once for filtering events.
+- [ ] **Enhanced Breakpoint Control**: Support conditional breakpoints and thread filtering for more precise debug interruption.
 - [ ] **To be added**: More features based on community feedback.
 
 ## License

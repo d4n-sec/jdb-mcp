@@ -71,7 +71,12 @@ mvn clean compile assembly:single
 - `debug_attach`: 通过 Socket 附加到现有的调试端口。
 - `debug_list_threads`: 列出所有线程及其状态。
 - `debug_list_classes`: 列出已加载的类，支持过滤。
-- `debug_list_vars`: 获取变量信息（支持 `threadName` 过滤）。
+- `debug_list_methods`: 列出指定类中的方法。
+- `debug_source`: 获取类的源代码（需要提供源码根路径）。
+- `debug_set_method_breakpoint`: 在方法入口处设置断点。
+- `debug_set_method_entry`: 监控方法进入事件。
+- `debug_set_method_exit`: 监控方法退出事件。
+- `debug_list_vars`: 获取变量信息（支持 `threadName`, `frameIndex` 和 `scope` 过滤）。
 - `debug_get_var`: 获取特定变量的详细信息。
 - `debug_set_var`: 修改运行时变量（支持 `threadName` 和 `frameIndex`）。
 - ...以及更多（详见 `tools/list`）。
@@ -81,6 +86,9 @@ mvn clean compile assembly:single
 - [ ] **实现 `debug_launch` 功能**：提供“开箱即用”的体验，允许用户直接通过 MCP 启动并调试 Java 程序。
 - [ ] **实现 `debug_calc` 功能**：支持在调试上下文中执行任意 Java 表达式（Expression Evaluation）。
 - [ ] **多会话支持**：重构代码以支持一个 MCP 实例同时管理和调试多个目标程序。
+- [ ] **按包前缀进行类过滤**：支持在方法进入/退出与断点设置中使用包前缀（如 `com.example.*`）进行过滤。
+- [ ] **多类批量过滤**：支持一次性传入多个类名或通配规则集合，用于方法进入/退出与断点事件过滤。
+- [ ] **增强断点控制**：支持设置断点条件（Conditional Breakpoints）和线程过滤（Thread Filtering），以实现更精准的调试中断。
 - [ ] **待补充**：根据社区反馈持续添加新功能。
 
 ## 许可证

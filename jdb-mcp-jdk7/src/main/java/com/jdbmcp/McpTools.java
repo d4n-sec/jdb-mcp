@@ -8,6 +8,7 @@ import com.fasterxml.jackson.databind.node.ObjectNode;
  * Utility class for defining and listing MCP tools.
  * Simplified to support single session and attach mode only.
  */
+
 public class McpTools {
 
     public static ObjectNode listTools(ObjectMapper mapper) {
@@ -24,7 +25,7 @@ public class McpTools {
                 }
             })
 
-            .add("debug_set_breakpoint", "Set a breakpoint at a specific line in a class", new Consumer<ToolBuilder>() {
+            .add("debug_set_breakpoint", "Set a breakpoint at a specific line in a class. Returns success status and current thread/stack/class context.", new Consumer<ToolBuilder>() {
                 @Override
                 public void accept(ToolBuilder t) {
                     t.property("className", "string", "The fully qualified name of the class")
@@ -33,17 +34,35 @@ public class McpTools {
                 }
             })
 
-            .add("debug_list_breakpoints", "List all breakpoints and watchpoints in the current session")
+            .add("debug_list_breakpoints", "List all breakpoints and watchpoints in the current session. Includes thread/stack/class context for active breakpoints.")
 
-            .add("debug_resume", "Resume the execution of the debugged VM")
+            .add("debug_resume", "Resume the execution of the debugged VM. Returns the state (thread/stack/class) from which it is resuming.")
 
-            .add("debug_continue", "Continue the execution of the debugged VM until the next breakpoint or termination")
+            .add("debug_continue", "Continue the execution of the debugged VM until the next breakpoint or termination. Returns the state (thread/stack/class) from which it is resuming.")
 
-            .add("debug_step_over", "Step over the current line of code")
+            .add("debug_step_over", "Step over the current line of code. Returns the new location, stack trace, and local variables.", new Consumer<ToolBuilder>() {
+                @Override
+                public void accept(ToolBuilder t) {
+                    t.property("threadName", "string", "Optional: The name of the thread to step.")
+                     .property("smartStep", "boolean", "Optional: If true, automatically selects the last suspended or most appropriate thread when threadName is missing.");
+                }
+            })
 
-            .add("debug_step_into", "Step into the current method call")
+            .add("debug_step_into", "Step into the current method call. Returns the new location, stack trace, and local variables.", new Consumer<ToolBuilder>() {
+                @Override
+                public void accept(ToolBuilder t) {
+                    t.property("threadName", "string", "Optional: The name of the thread to step.")
+                     .property("smartStep", "boolean", "Optional: If true, automatically selects the last suspended or most appropriate thread when threadName is missing.");
+                }
+            })
 
-            .add("debug_step_out", "Step out of the current method")
+            .add("debug_step_out", "Step out of the current method. Returns the new location, stack trace, and local variables.", new Consumer<ToolBuilder>() {
+                @Override
+                public void accept(ToolBuilder t) {
+                    t.property("threadName", "string", "Optional: The name of the thread to step.")
+                     .property("smartStep", "boolean", "Optional: If true, automatically selects the last suspended or most appropriate thread when threadName is missing.");
+                }
+            })
 
             .add("debug_get_stack_trace", "Get the stack trace of the currently suspended thread")
 
@@ -53,18 +72,37 @@ public class McpTools {
 
             .add("debug_list_threads", "List all threads and their current status.")
 
-            .add("debug_list_classes", "List loaded classes in the target VM. Use filter to narrow down results.", new Consumer<ToolBuilder>() {
+            .add("debug_list_classes", "List loaded classes in the target VM. Use filter to narrow down results (supports prefix 'com.*', suffix '*.String', or substring).", new Consumer<ToolBuilder>() {
                 @Override
                 public void accept(ToolBuilder t) {
-                    t.property("filter", "string", "Optional: Filter classes by name (e.g., 'com.example.*').");
+                    t.property("filter", "string", "Optional: Filter classes by name. Supports wildcards (e.g., 'com.example.*', '*.String') or substring match.");
                 }
             })
 
-            .add("debug_list_vars", "List local variables in the current stack frame. Default is non-recursive.", new Consumer<ToolBuilder>() {
+            .add("debug_list_methods", "List methods in a specific class", new Consumer<ToolBuilder>() {
                 @Override
                 public void accept(ToolBuilder t) {
-                    t.property("threadName", "string", "Optional: Filter variables by thread name.")
-                     .property("maxDepth", "integer", "Maximum recursion depth for complex objects (default 0, max 10).");
+                    t.property("className", "string", "The fully qualified name of the class")
+                     .required("className");
+                }
+            })
+
+            .add("debug_source", "Get the source file name for a specific class", new Consumer<ToolBuilder>() {
+                @Override
+                public void accept(ToolBuilder t) {
+                    t.property("className", "string", "The fully qualified name of the class")
+                     .required("className");
+                }
+            })
+
+            .add("debug_list_vars", "List variables in a specific stack frame. Requires threadName. Default shows only local variables. Use scope='ALL' or scope='THIS' to see non-local variables.", new Consumer<ToolBuilder>() {
+                @Override
+                public void accept(ToolBuilder t) {
+                    t.property("threadName", "string", "The name of the thread to list variables for. Use 'ALL' to list for all threads (not recommended for large apps).")
+                     .property("frameIndex", "integer", "The stack frame index (default 0).")
+                     .property("scope", "string", "The scope of variables to list: 'LOCAL' (default), 'THIS' (fields of 'this'), 'ALL' (both).")
+                     .property("maxDepth", "integer", "Maximum recursion depth for complex objects (default 0, max 10).")
+                     .required("threadName");
                 }
             })
 
