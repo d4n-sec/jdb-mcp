@@ -9,18 +9,26 @@
     <version>1.0-SNAPSHOT</version>
 
     <properties>
-        <maven.compiler.source>17</maven.compiler.source>
-        <maven.compiler.target>17</maven.compiler.target>
+        <maven.compiler.source>1.7</maven.compiler.source>
+        <maven.compiler.target>1.7</maven.compiler.target>
         <project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
     </properties>
 
     <dependencies>
-        <!-- JDI is part of the JDK since Java 9, so no external dependency is needed for it.
-             However, for MCP we might need a JSON library or an MCP SDK later. -->
+        <!-- JDI is part of the JDK (tools.jar in JDK 8 and below).
+             For JDK 9+, it's a module.
+             We assume tools.jar is available on the classpath for compilation if using JDK 8-. -->
+        <dependency>
+            <groupId>com.sun</groupId>
+            <artifactId>tools</artifactId>
+            <version>1.7.0</version>
+            <scope>system</scope>
+            <systemPath>D:\Program Files\Java\jdk1.7.0_21\lib\tools.jar</systemPath>
+        </dependency>
         <dependency>
             <groupId>com.fasterxml.jackson.core</groupId>
             <artifactId>jackson-databind</artifactId>
-            <version>2.15.2</version>
+            <version>2.12.7.1</version>
         </dependency>
     </dependencies>
 
@@ -29,13 +37,12 @@
             <plugin>
                 <groupId>org.apache.maven.plugins</groupId>
                 <artifactId>maven-compiler-plugin</artifactId>
-                <version>3.11.0</version>
+                <version>3.8.1</version>
                 <configuration>
-                    <compilerArgs>
-                        <!-- Ensure jdk.jdi module is available -->
-                        <arg>--add-modules</arg>
-                        <arg>jdk.jdi</arg>
-                    </compilerArgs>
+                    <fork>true</fork>
+                    <executable>D:\Program Files\Java\jdk1.7.0_21\bin\javac.exe</executable>
+                    <source>1.7</source>
+                    <target>1.7</target>
                 </configuration>
             </plugin>
             <plugin>

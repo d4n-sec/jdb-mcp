@@ -15,10 +15,10 @@ public class JdiDebugger {
     private boolean running = true;
     private final java.util.concurrent.BlockingQueue<String> eventQueue = new java.util.concurrent.LinkedBlockingQueue<>();
     private final StringBuilder outputBuffer = new StringBuilder();
-    private java.util.function.Consumer<String> eventListener;
+    private com.jdbmcp.Consumer<String> eventListener;
     private final Map<String, Set<Integer>> deferredBreakpoints = new java.util.concurrent.ConcurrentHashMap<>();
 
-    public void setEventListener(java.util.function.Consumer<String> listener) {
+    public void setEventListener(com.jdbmcp.Consumer<String> listener) {
         this.eventListener = listener;
     }
 
@@ -39,10 +39,16 @@ public class JdiDebugger {
      */
     public void attach(String host, int port) throws Exception {
         VirtualMachineManager vmm = Bootstrap.virtualMachineManager();
-        AttachingConnector connector = vmm.attachingConnectors().stream()
-                .filter(c -> c.name().equals("com.sun.jdi.SocketAttach"))
-                .findFirst()
-                .orElseThrow(() -> new RuntimeException("SocketAttach connector not found"));
+        AttachingConnector connector = null;
+        for (AttachingConnector c : vmm.attachingConnectors()) {
+            if (c.name().equals("com.sun.jdi.SocketAttach")) {
+                connector = c;
+                break;
+            }
+        }
+        if (connector == null) {
+            throw new RuntimeException("SocketAttach connector not found");
+        }
 
         Map<String, Connector.Argument> arguments = connector.defaultArguments();
         arguments.get("hostname").setValue(host);
@@ -54,9 +60,11 @@ public class JdiDebugger {
     }
 
     private void startEventLoop() {
-        Thread eventThread = new Thread(() -> {
-            EventQueue queue = vm.eventQueue();
-            while (running) {
+        Thread eventThread = new Thread(new Runnable() {
+            @Override
+            public void run() {
+                EventQueue queue = vm.eventQueue();
+                while (running) {
                 try {
                     EventSet eventSet = queue.remove();
                     boolean shouldResume = true;
@@ -76,7 +84,7 @@ public class JdiDebugger {
                     break;
                 }
             }
-        });
+        }});
         eventThread.setDaemon(true);
         eventThread.start();
     }
@@ -148,19 +156,33 @@ public class JdiDebugger {
     public void setBreakpoint(String className, int line) throws Exception {
         if (vm == null) {
             System.err.println("VM not started yet. Adding deferred breakpoint for " + className + ":" + line);
-            deferredBreakpoints.computeIfAbsent(className, k -> new java.util.HashSet<>()).add(line);
+            Set<Integer> set = deferredBreakpoints.get(className);
+            if (set == null) {
+                set = new java.util.HashSet<>();
+                deferredBreakpoints.put(className, set);
+            }
+            set.add(line);
             return;
         }
         List<ReferenceType> classes = vm.classesByName(className);
         if (classes.isEmpty()) {
-            Set<Integer> lines = deferredBreakpoints.computeIfAbsent(className, k -> new java.util.HashSet<>());
+            Set<Integer> lines = deferredBreakpoints.get(className);
+            if (lines == null) {
+                lines = new java.util.HashSet<>();
+                deferredBreakpoints.put(className, lines);
+            }
             if (!lines.contains(line)) {
                 System.err.println("Class " + className + " not loaded yet. Adding deferred breakpoint.");
                 lines.add(line);
                 
                 // Check if a ClassPrepareRequest already exists for this class
-                boolean exists = vm.eventRequestManager().classPrepareRequests().stream()
-                        .anyMatch(r -> r.getProperty("className") != null && r.getProperty("className").equals(className));
+                boolean exists = false;
+                for (ClassPrepareRequest r : vm.eventRequestManager().classPrepareRequests()) {
+                    if (r.getProperty("className") != null && r.getProperty("className").equals(className)) {
+                        exists = true;
+                        break;
+                    }
+                }
                 
                 if (!exists) {
                     ClassPrepareRequest cpr = vm.eventRequestManager().createClassPrepareRequest();
@@ -251,8 +273,13 @@ public class JdiDebugger {
             
             if (access && vm.canWatchFieldAccess()) {
                 // Check if access watchpoint already exists
-                boolean exists = vm.eventRequestManager().accessWatchpointRequests().stream()
-                        .anyMatch(r -> r.field().equals(field));
+                boolean exists = false;
+                for (AccessWatchpointRequest r : vm.eventRequestManager().accessWatchpointRequests()) {
+                    if (r.field().equals(field)) {
+                        exists = true;
+                        break;
+                    }
+                }
                 if (!exists) {
                     AccessWatchpointRequest awp = vm.eventRequestManager().createAccessWatchpointRequest(field);
                     awp.enable();
@@ -261,8 +288,13 @@ public class JdiDebugger {
             }
             if (modification && vm.canWatchFieldModification()) {
                 // Check if modification watchpoint already exists
-                boolean exists = vm.eventRequestManager().modificationWatchpointRequests().stream()
-                        .anyMatch(r -> r.field().equals(field));
+                boolean exists = false;
+                for (ModificationWatchpointRequest r : vm.eventRequestManager().modificationWatchpointRequests()) {
+                    if (r.field().equals(field)) {
+                        exists = true;
+                        break;
+                    }
+                }
                 if (!exists) {
                     ModificationWatchpointRequest mwp = vm.eventRequestManager().createModificationWatchpointRequest(field);
                     mwp.enable();

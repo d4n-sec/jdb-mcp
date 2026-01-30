@@ -201,13 +201,16 @@ public class McpServer {
         }
         JdiDebugger debugger = new JdiDebugger();
         if (enableNotifications) {
-            debugger.setEventListener(msg -> {
-                try {
-                    sendNotification("notifications/message", mapper.createObjectNode()
-                            .put("level", "info")
-                            .put("description", "Debugger Event")
-                            .put("data", msg));
-                } catch (Exception e) {
+            debugger.setEventListener(new Consumer<String>() {
+                @Override
+                public void accept(String msg) {
+                    try {
+                        sendNotification("notifications/message", mapper.createObjectNode()
+                                .put("level", "info")
+                                .put("description", "Debugger Event")
+                                .put("data", msg));
+                    } catch (Exception e) {
+                    }
                 }
             });
         }
@@ -324,7 +327,16 @@ public class McpServer {
                 ensureVm(dbg);
                 java.util.List<String> events = new java.util.ArrayList<>();
                 dbg.getEventQueue().drainTo(events);
-                result = events.isEmpty() ? "No new events" : String.join("\n", events);
+                if (events.isEmpty()) {
+                    result = "No new events";
+                } else {
+                    StringBuilder sb = new StringBuilder();
+                    for (int i = 0; i < events.size(); i++) {
+                        if (i > 0) sb.append("\n");
+                        sb.append(events.get(i));
+                    }
+                    result = sb.toString();
+                }
                 break;
             }
             case "debug_get_output": {

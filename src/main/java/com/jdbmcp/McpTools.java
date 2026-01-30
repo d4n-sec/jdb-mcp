@@ -3,7 +3,6 @@ package com.jdbmcp;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.fasterxml.jackson.databind.node.ArrayNode;
 import com.fasterxml.jackson.databind.node.ObjectNode;
-import java.util.function.Consumer;
 
 /**
  * Utility class for defining and listing MCP tools.
@@ -16,15 +15,23 @@ public class McpTools {
         ArrayNode toolsArray = result.putArray("tools");
 
         new ToolRegistry(toolsArray)
-            .add("debug_attach", "Attach to a running Java VM via socket", t -> t
-                .property("host", "string", "The hostname of the remote VM (default: localhost)")
-                .property("port", "integer", "The JDWP port of the remote VM")
-                .required("port"))
+            .add("debug_attach", "Attach to a running Java VM via socket", new Consumer<ToolBuilder>() {
+                @Override
+                public void accept(ToolBuilder t) {
+                    t.property("host", "string", "The hostname of the remote VM (default: localhost)")
+                     .property("port", "integer", "The JDWP port of the remote VM")
+                     .required("port");
+                }
+            })
 
-            .add("debug_set_breakpoint", "Set a breakpoint at a specific line in a class", t -> t
-                .property("className", "string", "The fully qualified name of the class")
-                .property("line", "integer", "The line number to set the breakpoint at")
-                .required("className", "line"))
+            .add("debug_set_breakpoint", "Set a breakpoint at a specific line in a class", new Consumer<ToolBuilder>() {
+                @Override
+                public void accept(ToolBuilder t) {
+                    t.property("className", "string", "The fully qualified name of the class")
+                     .property("line", "integer", "The line number to set the breakpoint at")
+                     .required("className", "line");
+                }
+            })
 
             .add("debug_list_breakpoints", "List all breakpoints and watchpoints in the current session")
 
@@ -46,35 +53,59 @@ public class McpTools {
 
             .add("debug_list_threads", "List all threads and their current status.")
 
-            .add("debug_list_classes", "List loaded classes in the target VM. Use filter to narrow down results.", t -> t
-                .property("filter", "string", "Optional: Filter classes by name (e.g., 'com.example.*')."))
+            .add("debug_list_classes", "List loaded classes in the target VM. Use filter to narrow down results.", new Consumer<ToolBuilder>() {
+                @Override
+                public void accept(ToolBuilder t) {
+                    t.property("filter", "string", "Optional: Filter classes by name (e.g., 'com.example.*').");
+                }
+            })
 
-            .add("debug_list_vars", "List local variables in the current stack frame. Default is non-recursive.", t -> t
-                .property("threadName", "string", "Optional: Filter variables by thread name.")
-                .property("maxDepth", "integer", "Maximum recursion depth for complex objects (default 0, max 10)."))
+            .add("debug_list_vars", "List local variables in the current stack frame. Default is non-recursive.", new Consumer<ToolBuilder>() {
+                @Override
+                public void accept(ToolBuilder t) {
+                    t.property("threadName", "string", "Optional: Filter variables by thread name.")
+                     .property("maxDepth", "integer", "Maximum recursion depth for complex objects (default 0, max 10).");
+                }
+            })
 
-            .add("debug_get_var", "Get detailed information about a specific variable, optionally with recursion.", t -> t
-                .property("varName", "string", "The name of the variable to inspect")
-                .property("maxDepth", "integer", "Maximum recursion depth for complex objects (default 3, max 10).")
-                .required("varName"))
+            .add("debug_get_var", "Get detailed information about a specific variable, optionally with recursion.", new Consumer<ToolBuilder>() {
+                @Override
+                public void accept(ToolBuilder t) {
+                    t.property("varName", "string", "The name of the variable to inspect")
+                     .property("maxDepth", "integer", "Maximum recursion depth for complex objects (default 3, max 10).")
+                     .required("varName");
+                }
+            })
 
-            .add("debug_send_input", "Send input string to the debugged process's stdin", t -> t
-                .property("input", "string", "The input string to send")
-                .required("input"))
+            .add("debug_send_input", "Send input string to the debugged process's stdin", new Consumer<ToolBuilder>() {
+                @Override
+                public void accept(ToolBuilder t) {
+                    t.property("input", "string", "The input string to send")
+                     .required("input");
+                }
+            })
 
-            .add("debug_set_var", "Set the value of a local variable in the current stack frame.", t -> t
-                .property("varName", "string", "The name of the variable")
-                .property("value", "string", "The new value for the variable")
-                .property("threadName", "string", "Optional: The name of the thread. If not provided, the first suspended thread is used.")
-                .property("frameIndex", "integer", "Optional: The stack frame index (default 0).")
-                .required("varName", "value"))
+            .add("debug_set_var", "Set the value of a local variable in the current stack frame.", new Consumer<ToolBuilder>() {
+                @Override
+                public void accept(ToolBuilder t) {
+                    t.property("varName", "string", "The name of the variable")
+                     .property("value", "string", "The new value for the variable")
+                     .property("threadName", "string", "Optional: The name of the thread. If not provided, the first suspended thread is used.")
+                     .property("frameIndex", "integer", "Optional: The stack frame index (default 0).")
+                     .required("varName", "value");
+                }
+            })
 
-            .add("debug_set_watchpoint", "Set an access or modification watchpoint for a field in a class.", t -> t
-                .property("className", "string", "The fully qualified name of the class")
-                .property("fieldName", "string", "The name of the field")
-                .property("access", "boolean", "Trigger on field access")
-                .property("modification", "boolean", "Trigger on field modification")
-                .required("className", "fieldName"))
+            .add("debug_set_watchpoint", "Set an access or modification watchpoint for a field in a class.", new Consumer<ToolBuilder>() {
+                @Override
+                public void accept(ToolBuilder t) {
+                    t.property("className", "string", "The fully qualified name of the class")
+                     .property("fieldName", "string", "The name of the field")
+                     .property("access", "boolean", "Trigger on field access")
+                     .property("modification", "boolean", "Trigger on field modification")
+                     .required("className", "fieldName");
+                }
+            })
 
             .add("debug_detach", "Terminate the current debug session and detach");
 
